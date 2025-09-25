@@ -10,7 +10,26 @@
 %  tradicionales?
 %       R: mejor rendimiento en vectores grandes, O(n log(n)) vs O(n^2)
 
+function w = getOmega(q, N)
+    can = 0:(q-1); % Se obtiene un vector de posibles valores de omega 
+    primes = unique(factor(N));  % Se obtienen los factores primos del número para reducir los cómputos
 
+    for i = can % Para cada uno
+        if powermod(i, N, q) == 1 % Se verifica que cumpla con ser modular
+            flag = true; % Se asume que si cumple la condición
+            for d = primes 
+                if powermod(i, N/d, q) == 1
+                    flag = false; % De tener un exponente menor a N que también cumpla la modularidad, se asigna un valor falso
+                    break;
+                end
+            end
+            if flag
+                w = i;  % Se almacena el valor
+                return
+            end
+        end
+    end
+end
 
 % 1. make our w, Z, and array
 % 2. matrix multiplication for the 2 signals
@@ -37,7 +56,7 @@ end
 
 
 % obtener w, mientras w = 1
-w = 1;
+w = getOmega(q, N);
 
 % multiplicacion matricial NTT
 m1 = zeros(N);
@@ -63,14 +82,13 @@ end
 % Inverse NTT of reslutG
 % get N^-1, inverso modular de N
 
-N1 = 1;
+N1 = modinv(N, q);
 
 m2 = zeros(N);
-
-% fill the matrix, dont know what the hell
+% fill the matrix
 for i = 0:N-1
     for j = 0:N-1
-        m2(i, j) = powermod(w, mod(-i*j, N), q); % Fill the inverse matrix
+        m2(i, j) = powermod(w, mod(-i*j, N), q);
     end
 end
 
@@ -79,4 +97,4 @@ end
 % dont know
 finalResult = m2 .* resultG;
 finalResult = mod(finalResult, q);
-finalResult = finalResult * N1;
+finalResult = finalResult .* N1;
