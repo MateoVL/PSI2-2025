@@ -1,4 +1,5 @@
-
+clearvars
+close all
 % Responder preguntas solicitadas:
 % 1. ¿Qué dimensiones tienen las matrices del problema?
 %       R: las matrices son NxN (tamaño de la señal)
@@ -26,18 +27,19 @@
 % 4. result = N⁻¹ * G⁻¹ * modEwMult mod q
 % 5. zero padding to adjust the result to length N * N - 1
 
-N = 8;
-q = 3329;
+% q = 3329
+N = input("Ingrese valor N: ");
+q = input("Ingrese q: ");
 
-
+w=0;
 % Step 1: make our w, signals (g, h) and matrix G
 for i = 2:q-1
     % condition 1: w^n = 1 mod q
-    if mod(i^N, q) == 1
+    if mod(i^N - 1, q) == 0 || mod(i^N, q) == 1
         isPrimitive = true;
         % condition 2: w^k not= 1 mod q for k < n
         for k = 1:N-1
-            if mod(i^k, q) == 1
+            if mod(i^k - 1, q) == 0 || mod(i^k, q) == 1
                 isPrimitive = false;
                 break;
             end
@@ -49,9 +51,13 @@ for i = 2:q-1
     end
 end
 
+
 % make our signals g and h
-g = [randi([1, w], 1, N/2), zeros(1, N/2)];
-h = [randi([1, w], 1, N/2), zeros(1, N/2)];
+g = randi([1, w], 1, N/2);
+h = randi([1, w], 1, N/2);
+
+gPadding = [g, zeros(1, N/2)];
+hPadding = [h, zeros(1, N/2)];
 
 % make matrix G
 matrixG = zeros(N);
@@ -68,8 +74,8 @@ matrixG
 
 
 % Step 2: get hat signals and the modular element-wise multiplication
-gHat = mod(matrixG * transpose(g), q);
-hHat = mod(matrixG * transpose(h), q);
+gHat = mod(matrixG * transpose(gPadding), q);
+hHat = mod(matrixG * transpose(hPadding), q);
 
 modEwMult = mod(gHat .* hHat, q);
 
@@ -89,10 +95,10 @@ disp(matrixG1)
 result = mod(N1 .* (matrixG1 * modEwMult), q);
 
 % Step 5: zero padding to adjust the result to length N * N - 1
-zero_padding = [result', zeros(1, N - 1)];
+%zero_padding = [result', zeros(1, N - 1)];
 
 disp("Resultado de convolución por transformada teorica numerica: ")
-fprintf("%d  ", zero_padding);
+fprintf("%d  ", result(1:N-1));
 fprintf("\n");
 disp("Resultado de conv(): ")
 fprintf("%d  ", conv(g,h))
