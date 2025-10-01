@@ -1,21 +1,5 @@
 clearvars
 close all
-% Responder preguntas solicitadas:
-% 1. ¿Qué dimensiones tienen las matrices del problema?
-%       R: las matrices son NxN (tamaño de la señal)
-
-% 2. ¿Cómo se obtiene el valor de ⍵?
-%       R: comprobando para todos los numeros de 2 a q si se cumple: 
-%       w^n = 1 mod q y que w^k no= 1 mod q para todo k < n, w puede ser
-%       cualquer numero que cumpla esa condicion, pero en esta
-%       implementacion se busca solo el primero que cumpla.
-
-% 3. ¿Qué diferencias tienen las operaciones modulares con las operaciones
-%  tradicionales?
-%       R: el dominio de resultado de las modulares estan en un rango
-%       definido: [0, modulo) (cuando se supera el limite superior, se
-%       devuelve al inicio).
-
 
 % Steps:
 % --NTT --
@@ -27,7 +11,6 @@ close all
 % 4. result = N⁻¹ * G⁻¹ * modEwMult mod q
 % 5. zero padding to adjust the result to length N * N - 1
 
-% q = 3329
 N = input("Ingrese valor N: ");
 q = input("Ingrese q: ");
 
@@ -37,7 +20,7 @@ for i = 2:q-1
     % condition 1: w^n = 1 mod q
     if mod(i^N - 1, q) == 0 || mod(i^N, q) == 1
         isPrimitive = true;
-        % condition 2: w^k not= 1 mod q for k < n
+        % condition 2: w^k ~= 1 mod q for k < n
         for k = 1:N-1
             if mod(i^k - 1, q) == 0 || mod(i^k, q) == 1
                 isPrimitive = false;
@@ -94,8 +77,7 @@ disp(matrixG1)
 % Step 4: result = N⁻¹ * G⁻¹ * modEwMult mod q
 result = mod(N1 .* (matrixG1 * modEwMult), q);
 
-% Step 5: zero padding to adjust the result to length N * N - 1
-%zero_padding = [result', zeros(1, N - 1)];
+% Step 5: zero padding to adjust the result to length N - 1
 
 disp("Resultado de convolución por transformada teorica numerica: ")
 fprintf("%d  ", result(1:N-1));
