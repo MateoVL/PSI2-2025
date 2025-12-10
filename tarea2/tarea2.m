@@ -50,9 +50,11 @@ function theta = miGCCPHAT(x1, x2, fs)
     theta = asind(t/tm);    
 end
 
-
-dist = 0.5;
-c = 340; % velocidad de senal
+dist = input("Ingrese distancia[m] entre receptores x1 y x2: ");
+%dist = 0.5;
+c = input("Ingrese velocidad[m/s] de la señal: ");
+%c = 340;
+%filename = input("Ingrese dirección del archivo .wav de la señal: ");
 filename = "signal/signal-90.wav";
 [x, fs] = audioread(filename);
 
