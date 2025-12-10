@@ -1,5 +1,32 @@
-clearvars
-close all
+
+
+c = 340; % velocidad de senal
+filename = "signal/signal-10.wav";
+[x, fs] = audioread(filename);
+
+x1 = x(:,1);
+x2 = x(:,2);
+
+miTheta = miGCCPHAT(x1, x2, fs);
+
+microphone = phased.OmnidirectionalMicrophoneElement(...
+    'FrequencyRange', [20 Fs/2]);
+
+array = phased.ULA(2, 0.5, 'Element', microphone);
+
+estimator = phased.GCCEstimator( ...
+    'SensorArray', array, ...
+    'PropagationSpeed', c, ...
+    'SampleRate', Fs);
+
+theta_matlab = estimator([x1.'; x2.']);
+
+
+fprintf("\nArchivo: %s\n", filename);
+fprintf("Mi GCC-PHAT     = %.2f°\n", theta_mia);
+fprintf("MATLAB GCC-PHAT = %.2f°\n", theta_matlab);
+
+
 
 function theta = miGCCPHAT(x1, x2, fs)
 
@@ -27,9 +54,9 @@ function theta = miGCCPHAT(x1, x2, fs)
     L = length(R12);           % debería ser d*M
     shift = floor((d*M)/2);    % shift = d*M / 2 entero
     
-    part1 = R12(L-shift+1 : L);    % últimos 'shift' valores
+    part1 = R12(L-shift : L);    % últimos 'shift' valores
     
-    part2 = R12(1 : shift);      % primeros 'shift+1' valores (incluye el cero)
+    part2 = R12(1 : shift+1);      % primeros 'shift+1' valores (incluye el cero)
     
     part1 = part1(:);
     part2 = part2(:);
@@ -47,23 +74,11 @@ function theta = miGCCPHAT(x1, x2, fs)
     
     % Part 4: get theta
     
-    theta = asind(t/tm);    
+    theta = asind(t/tm);
+    
 end
 
-
-dist = 0.5;
-c = 340; % velocidad de senal
-filename = "signal/signal-90.wav";
-[x, fs] = audioread(filename);
-
-x1 = x(:,1);
-x2 = x(:,2);
-
-miTheta = miGCCPHAT(x1, x2, fs);
-
-microphone = phased.OmnidirectionalMicrophoneElement(...
-    'FrequencyRange', [20 fs/2]);
-
+microphone = phased.OmnidirectionalMicrophoneElement('FrequencyRange', [20 fs/2]);
 array = phased.ULA(2, 0.5, 'Element', microphone);
 
 estimator = phased.GCCEstimator( ...
@@ -71,10 +86,4 @@ estimator = phased.GCCEstimator( ...
     'PropagationSpeed', c, ...
     'SampleRate', fs);
 
-X = [x1(:)  x2(:)];   % obliga a que ambas sean columnas
-
-theta_matlab = estimator(X);
-
-fprintf("\nArchivo: %s\n", filename);
-fprintf("Mi GCC-PHAT     = %.2f°\n", miTheta);
-fprintf("MATLAB GCC-PHAT = %.2f°\n", theta_matlab);
+phased.GCCEstimator('SensorArray', array, 'PropagationSpeed', c,'SampleRate', fs)
