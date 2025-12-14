@@ -67,7 +67,6 @@ x2 = x(:,2);
 % Llamado a mi implementación
 miTheta = miGCCPHAT(x1, x2, fs, c, dist);
 
-% Función nativa de Matlab
 microphone = phased.OmnidirectionalMicrophoneElement(...
     'FrequencyRange', [20 fs/2]);
 
@@ -78,11 +77,10 @@ estimator = phased.GCCEstimator( ...
     'PropagationSpeed', c, ...
     'SampleRate', fs);
 
-X = [x1(:)  x2(:)];
+X = [x1(:)  x2(:)];   % obliga a que ambas sean columnas
 
 theta_matlab = estimator(X);
 
-% Impresión de resultados
 fprintf("\nArchivo: %s\n", filename);
 fprintf("Mi GCC-PHAT     = %.2f°\n", miTheta);
 fprintf("MATLAB GCC-PHAT = %.2f°\n", theta_matlab);
